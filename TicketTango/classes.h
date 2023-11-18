@@ -18,8 +18,8 @@ public:
 
 class Location {
 	std::string name;
-	int capacity = 0; // total number of seats
 	int noRows = 0;
+	int noSeatsPerRow = 0;
 public:
 	std::string getName() {
 		return this->name;
@@ -30,17 +30,6 @@ public:
 			throw std::exception("Name must start with a capital letter");
 		}
 		this->name = newName;
-	}
-
-	int getCapacity() {
-		return this->capacity;
-	}
-
-	void setCapacity(int c) {
-		if (c <= 0) {
-			throw std::exception("Capacity must be strictly positive");
-		}
-		this->capacity = c;
 	}
 
 	int getNoRows() {
@@ -54,16 +43,42 @@ public:
 		this->noRows = r;
 	}
 
-	void displayDetails() {
-		std::cout << std::endl << "Location Name: " << this->getName();
-		std::cout << std::endl << "Capacity: " << this->getCapacity();
-		std::cout << std::endl << "Number of Rows: " << this->getNoRows();
+	int getNoSeatsPerRow() {
+		return this->noSeatsPerRow;
 	}
 
-	Location(std::string name, int capacity, int rows) {
+	void setNoSeatsPerRow(int s) {
+		if (s <= 0) {
+			throw std::exception("Number of rows must be strictly positive");
+		}
+		this->noSeatsPerRow = s;
+	}
+
+	void displayDetails() {
+		std::cout << std::endl << "=====================";
+		std::cout << std::endl << "Location Name: " << this->getName();
+		std::cout << std::endl << "Capacity: " << (this->getNoRows() * this->getNoSeatsPerRow());
+	}
+
+	Location(std::string name, int rows, int seats) {
 		this->setName(name);
-		this->setCapacity(capacity);
 		this->setNoRows(rows);
+		this->setNoSeatsPerRow(seats);
+	}
+
+	Location(const Location& loc) {
+		this->setName(loc.name);
+		this->setNoRows(loc.noRows);
+		this->setNoSeatsPerRow(loc.noSeatsPerRow);
+	}
+
+	void operator=(const Location& loc) {
+		if (&loc == this) {
+			return;
+		}
+		this->setName(loc.name);
+		this->setNoRows(loc.noRows);
+		this->setNoSeatsPerRow(loc.noSeatsPerRow);
 	}
 };
 
@@ -119,6 +134,7 @@ public:
 	}
 
 	void displayDetails() {
+		std::cout << std::endl << "=====================";
 		std::cout << std::endl << "Event Name: " << this->getName();
 		std::cout << std::endl << "Date: " << this->getDate();
 		std::cout << std::endl << "Time: " << this->getTime();
@@ -134,19 +150,72 @@ public:
 
 int Event::NO_EVENTS = 0;
 
-class Person {
+class User {
 	const char* name;
-	const char dateOfBirth[11]; //	dd/mm/yyyy
-	char gender;
-	std::string* email = nullptr;
+	char dateOfBirth[11]; //	dd/mm/yyyy
+	char* email = nullptr;
 public:
+	const char* getName() {
+		return Util::copyString(this->name);
+	}
+
+	void setName(const char* newName) {
+		if (newName[0] < 'A' || newName[0] > 'Z') {
+			throw std::exception("Name must start with a capital letter");
+		}
+		this->name = newName;
+	}
+
+	char* getDateOfBirth() {
+		return Util::copyString(this->dateOfBirth);
+	}
+
+	void setDateOfBirth(const char* bday) {
+		if (strlen(bday) != 10) {
+			throw std::exception("Wrong date length");
+		}
+		if (bday[2] != '/' || bday[5] != '/') {
+			throw std::exception("Wrong date format");
+		}
+
+		strcpy_s(this->dateOfBirth, bday);
+	}
+
+	char* getEmail() {
+		char* copy = Util::copyString(this->email);
+		return copy;
+	}
+
+	void setEmail(const char* newEmail) {
+		this->email = Util::copyString(newEmail);
+		if (strchr(this->email, '@') == NULL) {
+			throw std::exception("Wrong email format");
+		}
+	}
+
+	void displayDetails() {
+		std::cout << std::endl << "=====================";
+		std::cout << std::endl << "Name: " << this->getName();
+		std::cout << std::endl << "Date of birth: " << this->getDateOfBirth();
+		std::cout << std::endl << "Email: " << this->getEmail();
+	}
+
+	User(const char* name, const char* bday, const char* email) {
+		this->setName(name);
+		this->setDateOfBirth(bday);
+		this->setEmail(email);
+	}
+
+	~User() {
+		delete[] this->email;
+	}
 };
 
 class Ticket {
 	const char* id;
 	const Event& event;
 	const Location& location;
-	const Person& person;
+	const User& user;
 	float price = 0;
 	static int NO_TICKETS;
 public:
