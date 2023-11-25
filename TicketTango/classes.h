@@ -70,15 +70,16 @@ public:
 		return os;
 	}
 
+	Seat& operator!() {
+		// make a seat available 
+		this->reserved = false;
+		return *this;
+	}
+
 	// Generic methods for processing/displaying attributes
 	//void displayDetails() const {
 	//	std::cout << std::endl << *this;
 	//}
-
-	void switchReserve() {
-		// toggle reservation status
-		this->reserved = !this->reserved;
-	}
 };
 
 class Row {
@@ -143,9 +144,9 @@ public:
 		if (this != &other) {
 			delete[] this->seats;
 			this->numSeats = other.numSeats;
-			this->seats = new Seat[numSeats];
+			this->seats = new Seat[this->numSeats];
 
-			for (int i = 0; i < numSeats; ++i) {
+			for (int i = 0; i < this->numSeats; ++i) {
 				this->seats[i] = other.seats[i];
 			}
 		}
@@ -160,7 +161,7 @@ public:
 	}
 
 	// Generic methods for processing/displaying attributes
-	void displayDetails() const {
+	void displayDetails() {
 		std::cout << std::endl << "===== Row " << this->number << " =====";
 		for (int i = 0; i < this->numSeats; ++i) {
 			std::cout << this->seats[i];
@@ -236,11 +237,13 @@ public:
 	// Overloaded operators
 	Zone& operator=(const Zone& other) {
 		if (this != &other) {
-			delete[] rows;
+			delete[] this->rows;
+
 			this->name = other.name;
 			this->numRows = other.numRows;
-			this->rows = new Row[numRows];
-			for (int i = 0; i < numRows; ++i) {
+			this->rows = new Row[this->numRows];
+
+			for (int i = 0; i < this->numRows; ++i) {
 				this->rows[i] = other.rows[i];
 			}
 		}
@@ -250,13 +253,22 @@ public:
 	// Generic methods for processing/displaying attributes
 	void displayDetails() {
 		std::cout << std::endl << "===== Zone " << this->getName() << " =====";
-		std::cout << std::endl << "Number of Rows : " << this->getNumRows() << std::endl;
+		std::cout << std::endl << "Capacity : " << this->capacity() << std::endl;
 		for (int i = 0; i < this->numRows; ++i) {
 			rows[i].displayDetails();
 		}
 		std::cout << std::endl;
 	}
 
+	int capacity() {
+		int totalSeats = 0;
+
+		for (int i = 0; i < this->numRows; ++i) {
+			totalSeats += rows[i].getNumSeats();
+		}
+
+		return totalSeats;
+	}
 };
 
 int Zone::MAX_ROWS = 20;
@@ -311,18 +323,23 @@ public:
 	}
 
 	// Constructors
+	Event(std::string name) {
+		this->setName(name);
+		this->setDate("00/00/0000");
+		this->setTime("00:00");
+	}
+
 	Event(std::string name, const char* date, const char* time) {
 		this->setName(name);
 		this->setDate(date);
 		this->setTime(time);
 	}
 
+	// Overloaded operators
 	Event& operator=(const Event& other) {
 		if (this != &other) {
-			// Copy name
 			this->setName(other.name);
 
-			// Copy date
 			try {
 				this->setDate(other.date);
 			}
@@ -330,7 +347,6 @@ public:
 				std::cerr << "Error setting date: " << e.what() << std::endl;
 			}
 
-			// Copy time
 			try {
 				this->setTime(other.time);
 			}
@@ -341,11 +357,12 @@ public:
 		return *this;
 	}
 
-	//
+    // Generic methods for processing/displaying attributes
 	void displayDetails() {
 		std::cout << std::endl << "===== " << this->getName() << " =====";
 		std::cout << std::endl << "Date: " << this->getDate();
 		std::cout << std::endl << "Time: " << this->getTime();
+		std::cout << std::endl;
 	}
 };
 
