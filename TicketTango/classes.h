@@ -16,85 +16,266 @@ public:
 	}
 };
 
-class Location {
-	std::string name;
-	int noRows = 0;
-	int noSeatsPerRow = 0;
+class Seat {
+private:
+	int number;
+	bool reserved = false;
+
 public:
+	//Getter and setters
+	int getNumber() {
+		return this->number;
+	}
+
+	void setNumber(int num) {
+		if (num < 1) {
+			throw std::invalid_argument("Invalid seat number");
+		}
+		this->number = num;
+	}
+
+	bool isReserved() {
+		return reserved;
+	}
+
+	void reserve() {
+		this->reserved = true;
+	}
+
+	//Constructors
+	Seat() : number(1) {}
+
+	Seat(int num) {
+		this->setNumber(num);
+	}
+
+	Seat(const Seat& other) {
+		this->setNumber(other.number);
+		this->reserved = other.reserved;
+	}
+
+	~Seat() {}
+
+	//Overloaded operators
+	Seat& operator=(const Seat& other) {
+		if (this != &other) {
+			this->setNumber(other.number);
+			this->reserved = other.reserved;
+		}
+		return *this;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const Seat& seat) {
+		os << std:: endl << "Seat Number: " << seat.number << ", Reserved: " << (seat.reserved ? "Yes" : "No");
+		return os;
+	}
+
+	// Generic methods for processing/displaying attributes
+	//void displayDetails() const {
+	//	std::cout << std::endl << *this;
+	//}
+
+	void switchReserve() {
+		// toggle reservation status
+		this->reserved = !this->reserved;
+	}
+};
+
+class Row {
+private:
+	int number;
+	Seat* seats = nullptr;
+	int numSeats = 0;
+
+public:
+	// Getters and setters
+	int getNumber() {
+		return this->number;
+	}
+
+	void setNumber(int num) {
+		if (num < 1) {
+			throw std::invalid_argument("Invalid row number");
+		}
+		this->number = num;
+	}
+
+	int getNumSeats() {
+		return this->numSeats;
+	}
+
+	void setNumSeats(int num) {
+		if (num < 1) {
+			throw std::invalid_argument("Row must have at least one seat");
+		}
+		this->numSeats = num;
+	}
+
+	// Constructors
+	Row() : number(1), numSeats(1) {
+		seats = new Seat[numSeats];
+	}
+
+	Row(int number, int numSeats) {
+		this->setNumber(number);
+		this->setNumSeats(numSeats);
+		this->seats = new Seat[this->numSeats];
+
+		for (int i = 0; i < this->numSeats; ++i) {
+			this->seats[i] = Seat(i + 1);
+		}
+	}
+
+	Row(const Row& other) : number(other.number), numSeats(other.numSeats) {
+		this->seats = new Seat[this->numSeats];
+
+		for (int i = 0; i < this->numSeats; ++i) {
+			this->seats[i] = other.seats[i];
+		}
+	}
+
+	~Row() {
+		delete[] this->seats;
+	}
+
+	//Overloaded operators
+	Row& operator=(const Row& other) {
+		if (this != &other) {
+			delete[] this->seats;
+			this->numSeats = other.numSeats;
+			this->seats = new Seat[numSeats];
+
+			for (int i = 0; i < numSeats; ++i) {
+				this->seats[i] = other.seats[i];
+			}
+		}
+		return *this;
+	}
+
+	Seat& operator[](int index) {
+		if (index < 0 || index >= this->numSeats) {
+			throw std::out_of_range("Invalid seat index");
+		}
+		return this->seats[index];
+	}
+
+	// Generic methods for processing/displaying attributes
+	void displayDetails() const {
+		std::cout << std::endl << "===== Row " << this->number << " =====";
+		for (int i = 0; i < this->numSeats; ++i) {
+			std::cout << this->seats[i];
+		}
+	}
+
+	void reserveRow() {
+		// reserve all seats on a row
+		for (int i = 0; i < this->numSeats; ++i) {
+			this->seats[i].reserve();
+		}
+	}
+};
+
+class Zone {
+private:
+	std::string name;
+	Row* rows = nullptr;
+	int numRows = 0;
+	static int MAX_ROWS;
+
+public:
+	//Getters and setters
 	std::string getName() {
 		return this->name;
 	}
 
 	void setName(std::string newName) {
 		if (newName[0] < 'A' || newName[0] > 'Z') {
-			throw std::exception("Name must start with a capital letter");
+			throw std::invalid_argument("Name must start with a capital letter");
 		}
 		this->name = newName;
 	}
 
-	int getNoRows() {
-		return this->noRows;
+	int getNumRows() {
+		return this->numRows;
 	}
 
-	void setNoRows(int r) {
-		if (r <= 0) {
-			throw std::exception("Number of rows must be strictly positive");
+	void setNumRows(int num) {
+		if (num < 1 || num > Zone::MAX_ROWS) {
+			throw std::invalid_argument("Invalid number of rows");
 		}
-		this->noRows = r;
+		this->numRows = num;
 	}
 
-	int getNoSeatsPerRow() {
-		return this->noSeatsPerRow;
+	// Constructors
+	Zone() : name("A"), numRows(1) {
+		this->rows = new Row[this->numRows];
 	}
 
-	void setNoSeatsPerRow(int s) {
-		if (s <= 0) {
-			throw std::exception("Number of rows must be strictly positive");
-		}
-		this->noSeatsPerRow = s;
-	}
-
-	void displayDetails() {
-		std::cout << std::endl << "=====================";
-		std::cout << std::endl << "Location Name: " << this->getName();
-		std::cout << std::endl << "Capacity: " << (this->getNoRows() * this->getNoSeatsPerRow());
-	}
-
-	Location(std::string name, int rows, int seats) {
+	Zone(std::string name, Row* r, int numRows) {
 		this->setName(name);
-		this->setNoRows(rows);
-		this->setNoSeatsPerRow(seats);
-	}
+		this->setNumRows(numRows);
+		rows = new Row[this->numRows];
 
-	Location(const Location& loc) {
-		this->setName(loc.name);
-		this->setNoRows(loc.noRows);
-		this->setNoSeatsPerRow(loc.noSeatsPerRow);
-	}
-
-	void operator=(const Location& loc) {
-		if (&loc == this) {
-			return;
+		for (int i = 0; i < this->numRows; i++) {
+			rows[i] = r[i];
 		}
-		this->setName(loc.name);
-		this->setNoRows(loc.noRows);
-		this->setNoSeatsPerRow(loc.noSeatsPerRow);
 	}
+
+	Zone(const Zone& other) : name(other.name), numRows(other.numRows) {
+		rows = new Row[this->numRows];
+
+		for (int i = 0; i < this->numRows; ++i) {
+			rows[i] = other.rows[i];
+		}
+	}
+
+	~Zone() {
+		delete[] this->rows;
+	}
+
+	// Overloaded operators
+	Zone& operator=(const Zone& other) {
+		if (this != &other) {
+			delete[] rows;
+			this->name = other.name;
+			this->numRows = other.numRows;
+			this->rows = new Row[numRows];
+			for (int i = 0; i < numRows; ++i) {
+				this->rows[i] = other.rows[i];
+			}
+		}
+		return *this;
+	}
+
+	// Generic methods for processing/displaying attributes
+	void displayDetails() {
+		std::cout << std::endl << "===== Zone " << this->getName() << " =====";
+		std::cout << std::endl << "Number of Rows : " << this->getNumRows() << std::endl;
+		for (int i = 0; i < this->numRows; ++i) {
+			rows[i].displayDetails();
+		}
+		std::cout << std::endl;
+	}
+
 };
 
+int Zone::MAX_ROWS = 20;
+
 class Event {
+private:
 	std::string name;
 	char date[11] = ""; //	dd/mm/yyyy
 	char time[6] = ""; //	hh:mm
-	static int NO_EVENTS;
+
 public:
+	// Getters and setters
 	std::string getName() {
 		return this->name;
 	}
 
 	void setName(std::string newName) {
 		if (newName[0] < 'A' || newName[0] > 'Z') {
-			throw std::exception("Name must start with a capital letter");
+			throw std::invalid_argument("Name must start with a capital letter");
 		}
 		this->name = newName;
 	}
@@ -129,96 +310,43 @@ public:
 		strcpy_s(this->time, newTime);
 	}
 
-	static int getNoEvents() {
-		return Event::NO_EVENTS;
-	}
-
-	void displayDetails() {
-		std::cout << std::endl << "=====================";
-		std::cout << std::endl << "Event Name: " << this->getName();
-		std::cout << std::endl << "Date: " << this->getDate();
-		std::cout << std::endl << "Time: " << this->getTime();
-	}
-
+	// Constructors
 	Event(std::string name, const char* date, const char* time) {
 		this->setName(name);
 		this->setDate(date);
 		this->setTime(time);
-		Event::NO_EVENTS += 1;
-	}
-};
-
-int Event::NO_EVENTS = 0;
-
-class User {
-	const char* name;
-	char dateOfBirth[11]; //	dd/mm/yyyy
-	char* email = nullptr;
-public:
-	const char* getName() {
-		return Util::copyString(this->name);
 	}
 
-	void setName(const char* newName) {
-		if (newName[0] < 'A' || newName[0] > 'Z') {
-			throw std::exception("Name must start with a capital letter");
+	Event& operator=(const Event& other) {
+		if (this != &other) {
+			// Copy name
+			this->setName(other.name);
+
+			// Copy date
+			try {
+				this->setDate(other.date);
+			}
+			catch (const std::exception& e) {
+				std::cerr << "Error setting date: " << e.what() << std::endl;
+			}
+
+			// Copy time
+			try {
+				this->setTime(other.time);
+			}
+			catch (const std::exception& e) {
+				std::cerr << "Error setting time: " << e.what() << std::endl;
+			}
 		}
-		this->name = newName;
+		return *this;
 	}
 
-	char* getDateOfBirth() {
-		return Util::copyString(this->dateOfBirth);
-	}
-
-	void setDateOfBirth(const char* bday) {
-		if (strlen(bday) != 10) {
-			throw std::exception("Wrong date length");
-		}
-		if (bday[2] != '/' || bday[5] != '/') {
-			throw std::exception("Wrong date format");
-		}
-
-		strcpy_s(this->dateOfBirth, bday);
-	}
-
-	char* getEmail() {
-		char* copy = Util::copyString(this->email);
-		return copy;
-	}
-
-	void setEmail(const char* newEmail) {
-		this->email = Util::copyString(newEmail);
-		if (strchr(this->email, '@') == NULL) {
-			throw std::exception("Wrong email format");
-		}
-	}
-
+	//
 	void displayDetails() {
-		std::cout << std::endl << "=====================";
-		std::cout << std::endl << "Name: " << this->getName();
-		std::cout << std::endl << "Date of birth: " << this->getDateOfBirth();
-		std::cout << std::endl << "Email: " << this->getEmail();
-	}
-
-	User(const char* name, const char* bday, const char* email) {
-		this->setName(name);
-		this->setDateOfBirth(bday);
-		this->setEmail(email);
-	}
-
-	~User() {
-		delete[] this->email;
+		std::cout << std::endl << "===== " << this->getName() << " =====";
+		std::cout << std::endl << "Date: " << this->getDate();
+		std::cout << std::endl << "Time: " << this->getTime();
 	}
 };
 
-class Ticket {
-	const char* id;
-	const Event& event;
-	const Location& location;
-	const User& user;
-	float price = 0;
-	static int NO_TICKETS;
-public:
-};
 
-int Ticket::NO_TICKETS = 0;
