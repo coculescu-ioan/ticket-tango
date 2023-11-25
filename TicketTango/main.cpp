@@ -1,61 +1,53 @@
 #include "classes.h"
 
 int main() {
-    //Seat seat1(1);
-    //Seat seat2(2);
+ 
+    const int numEvents = 2;
+    Event events[numEvents] = {
+        Event("Concert 1", "01/01/2023", "18:00"),
+        Event("Concert 2", "02/01/2023", "20:00")
+    };
 
-    //std::cout << seat1;
-    //std::cout << seat2;
+    Row rows1[] = {
+        Row(1, 10),
+        Row(2, 8),
+        Row(3, 12),
+        Row(4, 9),
+        Row(5, 15)
+    };
 
-    //seat1.reserve();
+    Row rows2[] = {
+        Row(1, 10),
+        Row(2, 8),
+        Row(3, 12),
+        Row(4, 9),
+        Row(5, 15)
+    };
 
-    ////seat1.displayDetails();
-    ////seat2.displayDetails();
+    const int numZones = 2;
+    Zone zones[numZones] = {
+        Zone("Basic", rows1, 5, 20.0),
+        Zone("VIP", rows2, 5, 40.0)
+    };
 
-    //std::cout << seat1;
-    //std::cout << seat2;
+    int selectedEventIndex = Menu::selectEvent(events, numEvents);
+    const Event& selectedEvent = events[selectedEventIndex - 1];
+    //std::cout << selectedEvent;
 
-    //std::cout << !seat1;
+    int selectedZoneIndex = Menu::selectZone(zones, numZones);
+    const Zone& selectedZone = zones[selectedZoneIndex - 1];
+    //std::cout << selectedZone;
 
-    //Row row1(1, 5);
-    //Row row2(2, 6);
+    int selectedRowIndex = Menu::selectRow(selectedZone);
+    const Row& selectedRow = selectedZone.getRow(selectedRowIndex);
+    //std::cout << selectedRow;
 
-    //row1.displayDetails();
-    //row2.displayDetails();
+    int selectedSeatIndex = Menu::selectSeat(selectedRow);
+    const Seat& selectedSeat = selectedRow.getSeat(selectedSeatIndex);
+    std::cout << selectedSeat;
 
-    //row1.reserveRow();
+    Ticket newTicket(selectedEvent, selectedZone, selectedRow, selectedSeat);
+    newTicket.displayDetails();
 
-    //row1.displayDetails();
-
-    //row2 = row1;
-
-    //row2.displayDetails();
-
-    //std::cout << row1[3]; //Displays seat number 4 (index from 0 to n-1)
-
-    Row a(1, 3);
-    Row b(2, 4);
-    Row c(3, 5);
-    Row d(4, 6);
-
-    Row r1[] = { a, b };
-    Row r2[] = { c, d };
-
-    //rows[0].displayDetails();
-    //rows[1].displayDetails();
-
-    Zone zone1("Parter", r1, 2);
-    Zone zone2("Balcon", r2, 2);
-
-    zone1.displayDetails();
-    zone2.displayDetails();
-
-    //Event event1("Concert", "03/12/2023", "21:30");
-    //Event event2("A");
-
-    ////event1.displayDetails();
-    //event2.displayDetails();
-
-    //event2 = event1;
-    //event2.displayDetails();
+    return 0;
 }
