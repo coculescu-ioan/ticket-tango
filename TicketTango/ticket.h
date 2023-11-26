@@ -20,7 +20,15 @@ public:
 		return id;
 	}
 
+	static int getNoTickets() {
+		return NO_TICKETS;
+	}
+
 	// Constructors
+	Ticket() : id(0), event(), zone(), row(), seat() {
+		generateTicketID();  
+	}
+
 	Ticket(const Event& e, const Zone& z, const Row& r, const Seat& s) {
 		this->event = e;
 		this->zone = z;
@@ -31,9 +39,29 @@ public:
 		Ticket::NO_TICKETS++;
 	}
 
+	Ticket(const Ticket& other) : id(nullptr), 
+								  event(other.event), 
+								  zone(other.zone), 
+								  row(other.row), 
+								  seat(other.seat) 
+	{
+		id = Util::copyString(other.id);
+	}
+
 	~Ticket() {
 		delete[] this->id;
 		Ticket::NO_TICKETS--;
+	}
+
+	Ticket& operator=(const Ticket& other) {
+		if (this != &other) {
+			id = Util::copyString(other.id);
+			event = other.event;
+			zone = other.zone;
+			row = other.row;
+			seat = other.seat;
+		}
+		return *this;
 	}
 
 	// Generic methods for processing / displaying attributes

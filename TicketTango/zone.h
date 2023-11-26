@@ -122,6 +122,35 @@ public:
 		return is;
 	}
 
+	Row& operator[](int index) {
+		if (index < 0 || index >= numRows) {
+			throw std::out_of_range("Index out of bounds");
+		}
+		return rows[index];
+	}
+
+	Zone& operator+(float value) {
+		// increase the price of the zone
+		this->price += value;
+		return *this;
+	}
+
+	bool operator!() const {
+		return price == 0;
+	}
+
+	bool operator<(const Zone& other) const {
+		return price < other.price;
+	}
+
+	bool operator>(const Zone& other) const {
+		return price > other.price;
+	}
+
+	bool operator==(const Zone& other) const {
+		return ((numRows == other.numRows) && (price == other.price));
+	}
+
 	// Generic methods for processing/displaying attributes
 	void displayDetails() const {
 		std::cout << std::endl << "===== Zone " << this->getName() << " =====";

@@ -107,6 +107,12 @@ public:
 		return is;
 	}
 
+	bool operator==(const Event& other) const {
+		// check if two events happen simultaneously
+		return (strcmp(this->date, other.date) == 0) &&
+			(strcmp(this->time, other.time) == 0);
+	}
+
 	// Generic methods for processing/displaying attributes
 	void displayDetails() {
 		std::cout << std::endl << "===== " << this->getName() << " =====";
