@@ -1,27 +1,27 @@
-#include "classes.h"
+#include "menu.h"
 
 int main() {
  
     const int numEvents = 2;
     Event events[numEvents] = {
-        Event("Concert 1", "01/01/2023", "18:00"),
-        Event("Concert 2", "02/01/2023", "20:00")
+        Event("Concert", "01/12/2023", "20:00"),
+        Event("Festival", "23/12/2023", "21:00")
     };
 
     Row rows1[] = {
         Row(1, 10),
-        Row(2, 8),
-        Row(3, 12),
-        Row(4, 9),
-        Row(5, 15)
+        Row(2, 10),
+        Row(3, 10),
+        Row(4, 10),
+        Row(5, 10)
     };
 
     Row rows2[] = {
-        Row(1, 10),
+        Row(1, 7),
         Row(2, 8),
-        Row(3, 12),
+        Row(3, 8),
         Row(4, 9),
-        Row(5, 15)
+        Row(5, 5)
     };
 
     const int numZones = 2;
@@ -44,7 +44,7 @@ int main() {
 
     int selectedSeatIndex = Menu::selectSeat(selectedRow);
     const Seat& selectedSeat = selectedRow.getSeat(selectedSeatIndex);
-    std::cout << selectedSeat;
+    //std::cout << selectedSeat;
 
     Ticket newTicket(selectedEvent, selectedZone, selectedRow, selectedSeat);
     newTicket.displayDetails();
