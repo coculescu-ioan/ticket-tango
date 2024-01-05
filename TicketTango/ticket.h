@@ -1,8 +1,5 @@
 #pragma once
 #include <iostream>
-#include "seat.h"
-#include "row.h"
-#include "zone.h"
 #include "event.h"
 
 class Ticket {
@@ -26,7 +23,7 @@ public:
 
 	// Constructors
 	Ticket() : id(0), event(), zone(), row(), seat() {
-		generateTicketID();  
+		generateTicketID();
 	}
 
 	Ticket(const Event& e, const Zone& z, const Row& r, const Seat& s) {
@@ -39,11 +36,11 @@ public:
 		Ticket::NO_TICKETS++;
 	}
 
-	Ticket(const Ticket& other) : id(nullptr), 
-								  event(other.event), 
-								  zone(other.zone), 
-								  row(other.row), 
-								  seat(other.seat) 
+	Ticket(const Ticket& other) : id(nullptr),
+		event(other.event),
+		zone(other.zone),
+		row(other.row),
+		seat(other.seat)
 	{
 		id = Util::copyString(other.id);
 	}
@@ -67,7 +64,7 @@ public:
 	// Generic methods for processing / displaying attributes
 	void displayDetails() {
 		std::cout << std::endl << "~~~~~~~ Ticket " << this->getID() << " ~~~~~~~";
-		event.displayDetails();
+		std::cout << event;
 		std::cout << zone;
 		std::cout << row;
 		std::cout << seat;

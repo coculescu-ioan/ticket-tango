@@ -1,14 +1,13 @@
 #pragma once
 #include <iostream>
-#include "seat.h"
 #include "row.h"
 
 class Zone {
 private:
 	std::string name;
+	float price = 0.0;
 	Row* rows = nullptr;
 	int numRows = 0;
-	float price = 0.0; 
 	static int MAX_ROWS;
 
 public:
@@ -47,14 +46,15 @@ public:
 	}
 
 	// Constructors
-	Zone() : name("A"), numRows(1), price(0.0) {
+	Zone() : name("A"), price(0.0), numRows(1) {
 		this->rows = new Row[this->numRows];
 	}
 
-	Zone(std::string name, Row* r, int numRows, float price) {
+	Zone(std::string name, float price, Row* r, int numRows) {
 		this->setName(name);
-		this->setNumRows(numRows);
 		this->setPrice(price);
+		this->setNumRows(numRows);
+
 		rows = new Row[this->numRows];
 
 		for (int i = 0; i < this->numRows; i++) {
@@ -96,26 +96,23 @@ public:
 		os << std::endl << "Price: $" << zone.getPrice();
 		os << std::endl << "Capacity: " << zone.capacity() << std::endl;
 
-		//for (int i = 0; i < zone.numRows; ++i) {
-		//	os << zone.rows[i];
-		//}
 		return os;
 	}
 
 	friend std::istream& operator>>(std::istream& is, Zone& zone) {
-		std::cout << "Enter Zone Name: ";
+		//std::cout << "Enter Zone Name: ";
 		is >> zone.name;
 
-		std::cout << "Enter the number of Rows in the Zone: ";
-		is >> zone.numRows;
-
-		std::cout << "Enter the price for the Zone: $";
+		//std::cout << "Enter the price for the Zone: $";
 		is >> zone.price;
+
+		//std::cout << "Enter the number of Rows in the Zone: ";
+		is >> zone.numRows;
 
 		zone.rows = new Row[zone.numRows];
 
 		for (int i = 0; i < zone.numRows; ++i) {
-			std::cout << "Enter details for Row " << i + 1 << ":";
+			//std::cout << "Enter details for Row " << i + 1 << ":";
 			is >> zone.rows[i];
 		}
 
@@ -180,6 +177,10 @@ public:
 		}
 
 		throw std::runtime_error("Row not found");
+	}
+
+	Row* getRows() const {
+		return rows;
 	}
 };
 

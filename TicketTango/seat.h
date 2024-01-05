@@ -62,11 +62,11 @@ public:
 	}
 
 	friend std::istream& operator>>(std::istream& is, Seat& seat) {
-		std::cout << "Enter Seat Number: ";
+		//std::cout << "Enter Seat Number: ";
 		is >> seat.number;
 
 		int reservedInput;
-		std::cout << "Is the seat reserved? (1 for Yes, 0 for No): ";
+		//std::cout << "Is the seat reserved? (1 for Yes, 0 for No): ";
 		is >> reservedInput;
 		seat.reserved = (reservedInput == 1);
 

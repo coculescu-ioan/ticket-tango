@@ -90,16 +90,16 @@ public:
 	}
 
 	friend std::istream& operator>>(std::istream& is, Row& row) {
-		std::cout << "Enter Row Number: ";
+		//std::cout << "Enter Row Number: ";
 		is >> row.number;
 
-		std::cout << "Enter the number of seats in the row: ";
+		//std::cout << "Enter the number of seats in the row: ";
 		is >> row.numSeats;
 
 		row.seats = new Seat[row.numSeats];
 
 		for (int i = 0; i < row.numSeats; ++i) {
-			std::cout << "Enter details for Seat " << i + 1 << ":";
+			//std::cout << "Enter details for Seat " << i + 1 << ":";
 			is >> row.seats[i];
 		}
 

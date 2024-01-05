@@ -1,57 +1,68 @@
 #include "menu.h"
+#include <fstream>
 
 int main() {
- 
-    const int numEvents = 2;
-    Event events[numEvents] = {
-        Event("Concert", "01/12/2023", "20:00"),
-        Event("Festival", "23/12/2023", "21:00")
-    };
+    std::ifstream inputFile("input.txt", std::ios::in);
 
-    //if (events[0] == events[1]) {
-    //    std::cout << "Events have the same date and time." << std::endl;
-    //}
-    //else {
-    //    std::cout << "Events have different date and time." << std::endl;
-    //}
+    if (!inputFile.is_open()) {
+        std::cout << "Error opening input file" << std::endl;
+        return 1;
+    }
 
-    Row rows1[] = {
-        Row(1, 10),
-        Row(2, 10),
-        Row(3, 10),
-        Row(4, 10),
-        Row(5, 10)
-    };
+    int numEvents;
 
-    Row rows2[] = {
-        Row(1, 7),
-        Row(2, 8),
-        Row(3, 8),
-        Row(4, 9),
-        Row(5, 5)
-    };
+    inputFile >> numEvents;
+    
+    Event* events = new Event[numEvents];
 
-    //Zone zona("Peluza Nord", rows1, 5, 35);
-    //std::cout << std::endl << zona + 5;
+    for (int i = 0; i < numEvents; ++i) {
+        std::string eventName, date, time;
+        inputFile >> eventName;
+        inputFile >> date;
+        inputFile >> time;
 
-    const int numZones = 2;
-    Zone zones[numZones] = {
-        Zone("Basic", rows1, 5, 20.0),
-        Zone("VIP", rows2, 5, 40.0)
-    };
+        int numZones;
+        inputFile >> numZones;
 
-    //std::cout << std::endl << !zones[0];
-    //std::cout << std::endl << (zona == zones[1] ?
-    //    "Same number of rows and price" :
-    //    "Different number of rows and price");
+        Zone* zones = new Zone[numZones];
+
+        for (int j = 0; j < numZones; ++j) {
+            std::string zoneName;
+            float price;
+            int zoneRows;
+            inputFile >> zoneName;
+            inputFile >> price;
+            inputFile >> zoneRows;  
+
+            Row* rows = new Row[zoneRows];
+
+            for (int k = 0; k < zoneRows; ++k) {
+                int numSeats;
+                inputFile >> numSeats;
+                rows[k] = Row(k + 1, numSeats);
+
+            }
+
+            zones[j] = Zone(zoneName, price, rows, zoneRows);
+
+        }
+
+        events[i] = Event(eventName, date.c_str(), time.c_str(), zones, numZones);
+
+    }
+
+    inputFile.close();  
+
+    Ticket* tickets = new Ticket[10];
+    int numTicketsIssued = 0;
 
     char answer;
     do {
         int selectedEventIndex = Menu::selectEvent(events, numEvents);
         const Event& selectedEvent = events[selectedEventIndex - 1];
 
-        int selectedZoneIndex = Menu::selectZone(zones, numZones);
-        const Zone& selectedZone = zones[selectedZoneIndex - 1];
+        int selectedZoneIndex = Menu::selectZone(selectedEvent.getZones(), selectedEvent.getNumZones());
+        const Zone& selectedZone = selectedEvent.getZones()[selectedZoneIndex - 1];
 
         int selectedRowIndex = Menu::selectRow(selectedZone);
         const Row& selectedRow = selectedZone.getRow(selectedRowIndex);
@@ -60,14 +71,28 @@ int main() {
         const Seat& selectedSeat = selectedRow.getSeat(selectedSeatIndex);
 
         Ticket newTicket(selectedEvent, selectedZone, selectedRow, selectedSeat);
-        newTicket.displayDetails();
 
-        std::cout << std::endl << "Tickets issued: " << Ticket::getNoTickets() << std::endl;
+        newTicket.displayDetails();
+        
+        // Store the new ticket in the array
+        if (numTicketsIssued < 10) {
+            tickets[numTicketsIssued++] = newTicket;
+        }
+        else {
+            std::cout << "Maximum number of tickets reached!" << std::endl;
+            break;
+        }
+
+        std::cout << std::endl << "Tickets issued: " << numTicketsIssued << std::endl;
 
         std::cout << "Purchase another ticket? (Y/N): ";
         std::cin >> answer;
 
     } while (answer == 'Y' || answer == 'y');
 
+    for (int i = 0; i < numTicketsIssued; i++) {
+        tickets[i].displayDetails();
+    }
+    
     return 0;
 }
